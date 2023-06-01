@@ -41,7 +41,7 @@ func (neighbor *Neighbor) set_server_ip() {
 
 }
 
-func (neighbor *Neighbor) set_port(instruct string, dflt int) {
+func (neighbor *Neighbor) set_port(instruct string, dfalt int) {
 
 	fmt.Println(instruct)
 	var input string
@@ -49,14 +49,14 @@ func (neighbor *Neighbor) set_port(instruct string, dflt int) {
 
 	var neighborVal *int
 
-	if dflt == 49152 {
+	if dfalt == 49152 {
 		neighborVal = &neighbor.StartPort
 	} else {
 		neighborVal = &neighbor.EndPort
 	}
 
 	if input == "" {
-		*neighborVal = dflt
+		*neighborVal = dfalt
 	} else {
 		if port, err := strconv.Atoi(input); err == nil && port >= 49152 && port <= 65535 {
 			*neighborVal = port
@@ -109,7 +109,7 @@ func generate_sequence(start int, end int, seed int64) {
 	}
 
 	for i := 0; i < 10; i++ {
-		fmt.Println(r.Intn(max - min) + min)
+		fmt.Println(r.Intn(max - min + 1) + min)
 	}
 }
 
@@ -125,4 +125,3 @@ func main() {
 
 	generate_sequence(neighbor.StartPort, neighbor.EndPort, neighbor.Seed)
 }
-
