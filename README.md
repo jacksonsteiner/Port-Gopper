@@ -6,7 +6,7 @@ Proof-of-concept client to server communication over random emphemeral port sequ
 
 Build with:
 
-    git clone git@github.com:jacksonsteiner/Port-Gopper.git
+    git clone https://github.com/jacksonsteiner/Port-Gopper.git
     cd Port-Gopper
     make
 
