@@ -71,7 +71,7 @@ Choose an integer between 49152 and 65535.`)
 
 func (neighbor *Neighbor) set_seed() {
 
-	fmt.Println("Enter an integer for the port hopping sequence (default, 0, decimal, or a negative number entered will result in a random number being used as the seed.): ")
+	fmt.Println("Enter an integer for the port hopping sequence (default, 0, a decimal, or a negative number entered will result in a random number being used as the seed.): ")
 	var input string
 	fmt.Scanln(&input)
 
