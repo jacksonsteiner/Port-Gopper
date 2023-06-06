@@ -8,21 +8,14 @@ import (
 	"strconv"
 	"bytes"
 	"math/rand"
-      _ "github.com/google/gopacket"
-      _ "github.com/google/gopacket/layers"
+    neighbor "github.com/Port-Gopper/src/pkg"
+    _ "github.com/google/gopacket"
+    _ "github.com/google/gopacket/layers"
 )
 
-type Neighbor struct {
-	Message   string
-	IPAddr    string
-	StartPort int
-	EndPort   int
-	Seed      int64
-}
+func run_udp(neighbor *neighbor.Neighbor) {
 
-func run_udp(neighbor *Neighbor) {
-
-	udpServerMaster, err := net.ListenPacket("udp", "127.0.0.1:6095")
+	udpServerMaster, err := net.ListenPacket("udp", ":6095")
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -72,25 +65,28 @@ func run_udp(neighbor *Neighbor) {
 
 	for {
 		newPort := strconv.Itoa(r.Intn(max - min + 1) + min)
-		udpServer, err := net.ListenPacket("udp", "127.0.0.1:" + newPort)
+		udpServer, err := net.ListenPacket("udp", ":" + newPort)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
 
 		newBuf := make([]byte, 1024)
-		n, _, err := udpServer.ReadFrom(newBuf)
+		n, addr, err := udpServer.ReadFrom(newBuf)
+
+		udpServer.Close()
 
 		if err != nil {
 			fmt.Println(err)
 			continue
 		}
 
-		fmt.Println("Received " + strconv.Itoa(n) + " bytes on port " + newPort)
+		fmt.Println("Received " + strconv.Itoa(n) + " bytes on port " + newPort + " from " + addr.String())
 		neighbor.Message += string(newBuf)
 
 		if n < 10 {
 			fmt.Println(neighbor.Message)
+			break
 		}
 
 	}
@@ -99,7 +95,7 @@ func run_udp(neighbor *Neighbor) {
 
 func main() {
 
-	neighbor := &Neighbor{}
+	neighbor := &neighbor.Neighbor{}
 	run_udp(neighbor)
 
 }
