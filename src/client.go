@@ -9,8 +9,6 @@ import (
 	"bytes"
     "time"
     neighbor "github.com/Port-Gopper/src/pkg"
-    _ "github.com/google/gopacket"
-    _ "github.com/google/gopacket/layers"
 )
 
 func run_udp(neighbor *neighbor.Neighbor) {
