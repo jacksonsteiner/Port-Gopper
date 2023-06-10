@@ -2,7 +2,7 @@
 
 A computer network implementation of [Frequency Hopping](https://en.wikipedia.org/wiki/Frequency-hopping_spread_spectrum).
 
-More specifically, a proof-of-concept, client-server communication model over a random ephemeral port sequence. This method of communication is demonstrated by breaking the client message up into 10-byte UDP datagrams and sending them individually over a random ephemeral port known by the server at connection time.
+More specifically, a proof-of-concept, client-server communication model over a pseudo-random ephemeral port sequence. This method of communication is demonstrated by breaking the client message up into 10-byte UDP datagrams and sending them individually over a pseudo-random ephemeral port known by the server at connection time.
 
 Build with:
 

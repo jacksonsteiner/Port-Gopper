@@ -10,6 +10,8 @@ import (
     "time"
     "encoding/json"
     neighbor "github.com/Port-Gopper/src/pkg"
+    _ "github.com/google/gopacket"
+    _ "github.com/google/gopacket/layers"
 )
 
 func run_udp(neighbor *neighbor.Neighbor) {
@@ -26,8 +28,8 @@ func run_udp(neighbor *neighbor.Neighbor) {
 		os.Exit(1)
 	}
 
-	a, _ := json.Marshal(map[string]int{"start": neighbor.StartPort,"end": neighbor.EndPort})
-	_, err = conn.Write([]byte(a))
+	marsh, _ := json.Marshal(map[string]int{"start": neighbor.StartPort,"end": neighbor.EndPort})
+	_, err = conn.Write([]byte(marsh))
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
