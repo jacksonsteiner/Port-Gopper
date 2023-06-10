@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"os"
 	"net"
-	"strings"
 	"strconv"
 	"bytes"
 	"math/rand"
+	"encoding/json"
 	neighbor "github.com/Port-Gopper/src/pkg"
 )
 
@@ -23,6 +23,7 @@ func run_udp(neighbor *neighbor.Neighbor) {
 
 	var buf []byte
 	var addr net.Addr
+	portRange := make(map[string]int)
 
 	buf = make([]byte, 1024)
 	_, addr, err = udpServerMaster.ReadFrom(buf)
@@ -30,16 +31,24 @@ func run_udp(neighbor *neighbor.Neighbor) {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-	neighbor.IPAddr = addr.String()
 
-	portRange := strings.Split(string(bytes.Trim(buf, "\x00")), ":")
-	neighbor.StartPort, err = strconv.Atoi(portRange[0])
+	neighbor.IPAddr = addr.String()
+	
+	buf = bytes.Trim(buf, "\x00")
+
+	err = json.Unmarshal(buf, &portRange)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 
-	neighbor.EndPort, err = strconv.Atoi(portRange[1])
+	neighbor.StartPort = portRange["start"]
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	neighbor.EndPort = portRange["end"]
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -47,7 +56,8 @@ func run_udp(neighbor *neighbor.Neighbor) {
 
 	neighbor.Seed = rand.Int63()
 
-	udpServerMaster.WriteTo([]byte(strconv.FormatInt(neighbor.Seed, 10)), addr)
+	a, _ := json.Marshal(neighbor.Seed)
+	udpServerMaster.WriteTo([]byte(a), addr)
 
 	r := rand.New(rand.NewSource(neighbor.Seed))
 

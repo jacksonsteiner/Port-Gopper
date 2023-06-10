@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"bytes"
     "time"
+    "encoding/json"
     neighbor "github.com/Port-Gopper/src/pkg"
 )
 
@@ -25,7 +26,8 @@ func run_udp(neighbor *neighbor.Neighbor) {
 		os.Exit(1)
 	}
 
-	_, err = conn.Write([]byte(strconv.Itoa(neighbor.StartPort) + ":" + strconv.Itoa(neighbor.EndPort)))
+	a, _ := json.Marshal(map[string]int{"start": neighbor.StartPort,"end": neighbor.EndPort})
+	_, err = conn.Write([]byte(a))
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -38,7 +40,9 @@ func run_udp(neighbor *neighbor.Neighbor) {
 		os.Exit(1)
 	}
 
-	neighbor.Seed, err = strconv.ParseInt(string(bytes.Trim(recvFrom, "\x00")), 10, 64)
+	recvFrom = bytes.Trim(recvFrom, "\x00")
+	err = json.Unmarshal(recvFrom, &neighbor.Seed)
+
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
