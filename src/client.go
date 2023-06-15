@@ -7,11 +7,11 @@ import (
 	"math/rand"
 	"strconv"
 	"bytes"
-    "time"
-    "encoding/json"
-    neighbor "github.com/Port-Gopper/src/pkg"
-    _ "github.com/google/gopacket"
-    _ "github.com/google/gopacket/layers"
+	"time"
+	"encoding/json"
+	neighbor "github.com/Port-Gopper/src/pkg"
+	_ "github.com/google/gopacket"
+	_ "github.com/google/gopacket/layers"
 )
 
 func run_udp(neighbor *neighbor.Neighbor) {
