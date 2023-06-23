@@ -64,14 +64,20 @@ func run_udp(neighbor *neighbor.Neighbor) {
 		min = neighbor.EndPort
 	}
 
-	buf := bytes.Buffer{}
-	buf.Write([]byte(neighbor.Message))
+	sendBuf := bytes.Buffer{}
+	sendBuf.Write([]byte(neighbor.Message))
+	nextTenBuf := sendBuf.Next(10)
+	
+	timeoutCount := 0
 
-	for buf.Len() > 0 {
+	for sendBuf.Len() > 0 {
 
-		time.Sleep(2 * time.Second)
+		if timeoutCount >= 5 {
+			break
+		}
 
-		newPort := strconv.Itoa(r.Intn(max - min + 1) + min)
+		newPortInt := r.Intn(max - min + 1) + min
+		newPort := strconv.Itoa(newPortInt)
 		udpServer, err := net.ResolveUDPAddr("udp", neighbor.IPAddr + ":" + newPort)
 		if err != nil {
 			fmt.Println(err)
@@ -84,16 +90,47 @@ func run_udp(neighbor *neighbor.Neighbor) {
 			os.Exit(1)
 		}
 
-		newBuf := buf.Next(10)
-		n, err := newConn.Write(newBuf)
+		defer newConn.Close()
+
+		n, err := newConn.Write(nextTenBuf)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
-		fmt.Println("Sent " + strconv.Itoa(n) + " bytes on port " + newPort)
 
-		newConn.Close()
+		err = newConn.SetReadDeadline(time.Now().Add(10 * time.Second))
+    	if err != nil {
+        	fmt.Println("Case for read deadline failing not handled! Exiting")
+        	os.Exit(1)
+    	}
 
+    	recvBuf := make([]byte, 1024)
+    	_, err = newConn.Read(recvBuf)
+    	if err != nil {
+    		if netErr, ok := err.(net.Error); ok && netErr.Timeout() {
+    			timeoutCount = timeoutCount + 1
+				fmt.Println("Timeout error count: " + strconv.Itoa(timeoutCount))
+    			continue
+    		} else {
+    			timeoutCount = timeoutCount + 1
+    			fmt.Println("Timeout error count: " + strconv.Itoa(timeoutCount))
+    			fmt.Println("Server confirmation error. Retrying.")
+    			continue
+    		}
+    	}
+
+		var servPortInt int
+		recvBuf = bytes.Trim(recvBuf, "\x00")
+		servPortInt, err = strconv.Atoi(string(recvBuf))
+
+		if servPortInt == newPortInt {
+			timeoutCount = 0
+			nextTenBuf = sendBuf.Next(10)
+			fmt.Println("Sent " + strconv.Itoa(n) + " bytes on port " + newPort)
+		} else {
+			fmt.Println("Server out of sync. Exiting.")
+			os.Exit(1)
+		}
 	}
 
 }
