@@ -99,25 +99,25 @@ func run_udp(neighbor *neighbor.Neighbor) {
 		}
 
 		err = newConn.SetReadDeadline(time.Now().Add(10 * time.Second))
-    	if err != nil {
+		if err != nil {
         	fmt.Println("Case for read deadline failing not handled! Exiting")
         	os.Exit(1)
     	}
 
-    	recvBuf := make([]byte, 1024)
-    	_, err = newConn.Read(recvBuf)
-    	if err != nil {
-    		if netErr, ok := err.(net.Error); ok && netErr.Timeout() {
-    			timeoutCount = timeoutCount + 1
+		recvBuf := make([]byte, 1024)
+		_, err = newConn.Read(recvBuf)
+		if err != nil {
+			if netErr, ok := err.(net.Error); ok && netErr.Timeout() {
+				timeoutCount = timeoutCount + 1
 				fmt.Println("Timeout error count: " + strconv.Itoa(timeoutCount))
-    			continue
-    		} else {
-    			timeoutCount = timeoutCount + 1
-    			fmt.Println("Timeout error count: " + strconv.Itoa(timeoutCount))
-    			fmt.Println("Server confirmation error. Retrying.")
-    			continue
-    		}
-    	}
+				continue
+			} else {
+				timeoutCount = timeoutCount + 1
+				fmt.Println("Timeout error count: " + strconv.Itoa(timeoutCount))
+				fmt.Println("Server confirmation error. Retrying.")
+				continue
+			}
+		}
 
 		var servPortInt int
 		recvBuf = bytes.Trim(recvBuf, "\x00")
@@ -125,7 +125,11 @@ func run_udp(neighbor *neighbor.Neighbor) {
 
 		if servPortInt == newPortInt {
 			timeoutCount = 0
-			nextTenBuf = sendBuf.Next(10)
+			if sendBuf.Len() >= 10 {
+				nextTenBuf = sendBuf.Next(10)
+			} else {
+				nextTenBuf = sendBuf.Next(sendBuf.Len())
+			}
 			fmt.Println("Sent " + strconv.Itoa(n) + " bytes on port " + newPort)
 		} else {
 			fmt.Println("Server out of sync. Exiting.")

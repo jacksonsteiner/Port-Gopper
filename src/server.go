@@ -73,7 +73,6 @@ func talk_to_neighbor(udpServerMaster net.PacketConn, buf []byte, addr net.Addr)
 		}
 
 		newPortInt, _ := strconv.Atoi(newPort)
-		fmt.Println(strconv.Itoa(newPortInt))
 		marsh, _ = json.Marshal(newPortInt)
 		udpServer.WriteTo([]byte(marsh), addr)
 
@@ -81,6 +80,7 @@ func talk_to_neighbor(udpServerMaster net.PacketConn, buf []byte, addr net.Addr)
 
 		fmt.Println("Received " + strconv.Itoa(n) + " bytes on port " + newPort + " from " + addr.String())
 		neighbor.Message += string(newBuf)
+		fmt.Println(neighbor.Message)
 
 		if n < 10 {
 			fmt.Println(neighbor.Message)
