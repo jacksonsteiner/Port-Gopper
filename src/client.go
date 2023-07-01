@@ -67,10 +67,10 @@ func run_udp(neighbor *neighbor.Neighbor) {
 	sendBuf := bytes.Buffer{}
 	sendBuf.Write([]byte(neighbor.Message))
 	nextTenBuf := sendBuf.Next(10)
-	
+
 	timeoutCount := 0
 
-	for sendBuf.Len() > 0 {
+	for len(nextTenBuf) > 0 {
 
 		if timeoutCount >= 5 {
 			break
@@ -102,7 +102,7 @@ func run_udp(neighbor *neighbor.Neighbor) {
 		if err != nil {
         	fmt.Println("Case for read deadline failing not handled! Exiting")
         	os.Exit(1)
-    	}
+		}
 
 		recvBuf := make([]byte, 1024)
 		_, err = newConn.Read(recvBuf)
@@ -114,7 +114,7 @@ func run_udp(neighbor *neighbor.Neighbor) {
 			} else {
 				timeoutCount = timeoutCount + 1
 				fmt.Println("Timeout error count: " + strconv.Itoa(timeoutCount))
-				fmt.Println("Server confirmation error. Retrying.")
+				fmt.Printf("Server confirmation error: %v\n", err)
 				continue
 			}
 		}
@@ -125,11 +125,7 @@ func run_udp(neighbor *neighbor.Neighbor) {
 
 		if servPortInt == newPortInt {
 			timeoutCount = 0
-			if sendBuf.Len() >= 10 {
-				nextTenBuf = sendBuf.Next(10)
-			} else {
-				nextTenBuf = sendBuf.Next(sendBuf.Len())
-			}
+			nextTenBuf = sendBuf.Next(10)
 			fmt.Println("Sent " + strconv.Itoa(n) + " bytes on port " + newPort)
 		} else {
 			fmt.Println("Server out of sync. Exiting.")
