@@ -57,7 +57,8 @@ func talk_to_neighbor(udpServerMaster net.PacketConn, buf []byte, addr net.Addr)
 
 	for {
 		newPort := strconv.Itoa(r.Intn(max - min + 1) + min)
-		udpServer, err := net.ListenPacket("udp", ":" + newPort)
+		laddr, err := net.ResolveUDPAddr("udp", ":" + newPort)
+		udpServer, err := net.ListenUDP("udp", laddr)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -91,7 +92,8 @@ func talk_to_neighbor(udpServerMaster net.PacketConn, buf []byte, addr net.Addr)
 
 func run_master_server() {
 
-	udpServerMaster, err := net.ListenPacket("udp", ":6095")
+	laddr, err := net.ResolveUDPAddr("udp", ":6095")
+	udpServerMaster, err := net.ListenUDP("udp", laddr)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)

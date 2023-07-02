@@ -10,26 +10,25 @@ import (
 	"time"
 	"encoding/json"
 	neighbor "github.com/Port-Gopper/src/pkg"
-	_ "github.com/google/gopacket"
-	_ "github.com/google/gopacket/layers"
 )
 
 func run_udp(neighbor *neighbor.Neighbor) {
 
-	udpServerInit, err := net.ResolveUDPAddr("udp", neighbor.IPAddr + ":6095")
+	laddr, err := net.ResolveUDPAddr("udp", "")
+	raddr, err := net.ResolveUDPAddr("udp", neighbor.IPAddr + ":6095")
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 
-	conn, err := net.DialUDP("udp", nil, udpServerInit)
+	conn, err := net.ListenUDP("udp", laddr)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 
 	marsh, _ := json.Marshal(map[string]int{"start": neighbor.StartPort,"end": neighbor.EndPort})
-	_, err = conn.Write([]byte(marsh))
+	_, err = conn.WriteToUDP([]byte(marsh), raddr)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -78,13 +77,14 @@ func run_udp(neighbor *neighbor.Neighbor) {
 
 		newPortInt := r.Intn(max - min + 1) + min
 		newPort := strconv.Itoa(newPortInt)
-		udpServer, err := net.ResolveUDPAddr("udp", neighbor.IPAddr + ":" + newPort)
+		laddr, err := net.ResolveUDPAddr("udp", ":" + newPort)
+		raddr, err := net.ResolveUDPAddr("udp", neighbor.IPAddr + ":" + newPort)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
 
-		newConn, err := net.DialUDP("udp", nil, udpServer)
+		newConn, err := net.ListenUDP("udp", laddr)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -92,7 +92,7 @@ func run_udp(neighbor *neighbor.Neighbor) {
 
 		defer newConn.Close()
 
-		n, err := newConn.Write(nextTenBuf)
+		n, err := newConn.WriteToUDP(nextTenBuf, raddr)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
