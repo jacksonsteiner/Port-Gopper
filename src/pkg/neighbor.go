@@ -84,7 +84,7 @@ func (neighbor *Neighbor) Set_End_Port() {
 func (neighbor *Neighbor) Set_Message() {
 
 	reader := bufio.NewReader(os.Stdin)
-		fmt.Println("Enter message to send: ")
+	fmt.Println("Enter message to send: ")
 	neighbor.Message, _ = reader.ReadString('\n')
 
 }
